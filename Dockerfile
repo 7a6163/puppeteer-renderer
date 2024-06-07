@@ -18,7 +18,7 @@ ARG CLEANING_TARGETS="src test .turbo .eslintrc.* jest.config.* tsup.config.* ts
 ARG PORT=3000
 ENV PORT=${PORT}
 
-RUN corepack enable && npm install -g turbo
+RUN corepack enable && npm install -g turbo@1.13.4
 
 FROM base as pruner
 
