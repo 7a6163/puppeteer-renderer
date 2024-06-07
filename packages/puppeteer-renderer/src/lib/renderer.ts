@@ -1,5 +1,4 @@
-import _ from 'lodash'
-import puppeteer, { Browser, PDFOptions, Page, PuppeteerLaunchOptions } from 'puppeteer'
+import puppeteer, { Browser, Page, PuppeteerLaunchOptions } from 'puppeteer'
 import waitForAnimations from './wait-for-animations'
 import {
   PageOptions,
@@ -64,7 +63,7 @@ export class Renderer {
 
       const buffer = await page.screenshot({
         ...options,
-        quality: options.type === 'png' ? 0 : options.quality,
+        quality: options.type === 'png' ? undefined : options.quality,
       })
 
       return {
@@ -108,7 +107,9 @@ export class Renderer {
       if (page && !page.isClosed()) {
         await page.close()
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
   }
 
   async close() {
@@ -127,10 +128,14 @@ export default async function create(options: PuppeteerLaunchOptions = {}) {
   options.args.push('--no-sandbox')
   options.args.push('--disable-web-security')
 
+  // disable cache
+  options.args.push('--disable-dev-shm-usage')
+  options.args.push('--disk-cache-size=0')
+  options.args.push('--aggressive-cache-discard')
+
   const browser = await puppeteer.launch({
     ...options,
-    headless: 'new',
-    userDataDir: '/dev/null'
+    headless: 'shell',
   })
 
   renderer = new Renderer(browser)
