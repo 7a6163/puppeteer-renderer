@@ -35,6 +35,7 @@ RUN pnpm install -r
 FROM base as builder
 COPY --from=installer /app .
 COPY --from=pruner /app/out/pnpm-workspace.yaml .
+RUN echo "SCOPE: $SCOPE"
 RUN pnpm run build --filter=$SCOPE
 
 FROM base as runner
