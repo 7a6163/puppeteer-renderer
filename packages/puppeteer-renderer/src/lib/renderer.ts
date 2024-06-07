@@ -135,6 +135,7 @@ export default async function create(options: PuppeteerLaunchOptions = {}) {
 
   const browser = await puppeteer.launch({
     ...options,
+    userDataDir: '/dev/null',
     headless: 'shell',
   })
 
