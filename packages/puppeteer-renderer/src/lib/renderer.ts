@@ -6,6 +6,7 @@ import {
   PdfOptions,
   ScreenshotOptions,
 } from './validate-schema'
+import fs from 'fs-extra'
 
 export class Renderer {
   private browser: Browser
@@ -114,6 +115,10 @@ export class Renderer {
 
   async close() {
     await this.browser.close()
+
+    if (this.chromeTmpDataDir !== null) {
+      fs.removeSync(this.chromeTmpDataDir)
+    }
   }
 }
 
@@ -135,9 +140,17 @@ export default async function create(options: PuppeteerLaunchOptions = {}) {
 
   const browser = await puppeteer.launch({
     ...options,
-    userDataDir: '/dev/null',
-    headless: 'shell',
+    headless: 'shell'
   })
+
+  // Extract temporary data directory
+  let chromeTmpDataDir: string | null = null
+  let chromeSpawnArgs = browser.process().spawnargs
+  for (let i = 0; i < chromeSpawnArgs.length; i++) {
+    if (chromeSpawnArgs[i].indexOf("--user-data-dir=") === 0) {
+      chromeTmpDataDir = chromeSpawnArgs[i].replace("--user-data-dir=", "")
+    }
+  }
 
   renderer = new Renderer(browser)
 
